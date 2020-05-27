@@ -14,25 +14,19 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
- * @author Sala_704
+ * @author Daniel Garzón
  */
 public class Consultas {
+    
     private PreparedStatement objPreparedStatement;
     private ResultSet objResultSet;
     private Connection objConexion;
-    /*public Datos consulta (Datos d){
-        if (d != null){
-            if (d.getUsuario().toUpperCase().equals("JULIAN")){
-                d.setDireccion("elcorreo.com.co");
-                return d;
-            }
-        }
-        return null;
-    }¨*/
     
+    //Método para registrar datos basicos
     public Datos registroDatosBasicos (Datos obj) throws SQLException {	
         objPreparedStatement = null;
         objResultSet = null;
@@ -69,6 +63,7 @@ public class Consultas {
         }       
     }   
 
+    //Método para registrar datos fisicos
     public boolean registroDatosFisicos (DatosFisicos obj) throws SQLException {	
         objPreparedStatement = null;
         objResultSet = null;
@@ -102,6 +97,7 @@ public class Consultas {
         }       
     }
     
+    //Método para registrar datos de rendimiento
     public boolean registroDatosRendimiento (DatosRendimiento obj) throws SQLException {	
         objPreparedStatement = null;
         objResultSet = null;
@@ -122,6 +118,7 @@ public class Consultas {
                 objPreparedStatement.setInt(6, obj.getLibresAnotados());
                 objPreparedStatement.setInt(7, obj.getTirosCampoAnotados());
                 objPreparedStatement.setInt(8, obj.getTriplesAnotados());
+                objPreparedStatement.setInt(9, obj.getPuntosPartido());
                 objPreparedStatement.setInt(9, obj.getPuntosPartido());
                 
                 resInsert = objPreparedStatement.executeUpdate();
@@ -183,6 +180,7 @@ public class Consultas {
         
     }*/
     
+    //Método para actualizar datos
     public boolean ActualizarDatosFisicos (DatosFisicos obj) throws SQLException {	
         objPreparedStatement = null;
         objResultSet = null;
@@ -224,6 +222,8 @@ public class Consultas {
                 objPreparedStatement.close();
         }
     } 
+    
+    //Método para buscar un usuario 
     public boolean buscarUsuario(int idUsuario) throws SQLException {
 		
         objPreparedStatement = null;
@@ -261,5 +261,68 @@ public class Consultas {
                 objPreparedStatement.close();
         }
     }
+ 
+    //Método para consultar hojas de vida
+    public ArrayList<Datos> consultar() throws SQLException{
+        objPreparedStatement = null;
+        objResultSet = null;
+        objConexion = null;
+        ArrayList<Datos> lista=new ArrayList<Datos>();
+        String sqlQuery = "SELECT * FROM datosbasicos";
+        
+        try{
+            objConexion = Conexion.conectarse();
+            objPreparedStatement = objConexion.prepareStatement(sqlQuery);
+            objResultSet = objPreparedStatement.executeQuery();
+            
+            while(objResultSet.next()){
+                
+                 Datos nuevo = new Datos();
+                 /*nuevo.setPeso(objResultSet.getString(1));
+                 nuevo.setEstatura(objResultSet.getString(1));
+                 nuevo.setComentario(objResultSet.getString(1));*/
+                nuevo.setNombre(objResultSet.getString(1));
+                nuevo.setApellido(objResultSet.getString(2));
+                nuevo.setCorreo(objResultSet.getString(3));
+                nuevo.setDireccion(objResultSet.getString(4));
+                nuevo.setTelefono(objResultSet.getInt(5));
+                nuevo.setId(objResultSet.getInt(6));
+                lista.add(nuevo);
+                
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        
+        
+        return lista;
+    }
     
+    //Método para eliminar hojas de vida
+    public boolean eliminar(Datos datos) throws SQLException{
+        objPreparedStatement = null;
+        objResultSet = null;
+        objConexion = null;
+        int resDel=0;
+        String sqlDelete = "DELETE FROM datosbasicos WHERE id"+datos.getId();
+        
+        try{
+            objConexion = Conexion.conectarse();
+            objPreparedStatement = objConexion.prepareStatement(sqlDelete);
+            objResultSet = objPreparedStatement.executeQuery();
+            
+            objPreparedStatement.close();
+            objConexion.close();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        
+        if(resDel>0){
+            return true;
+        } else{
+            return false;
+        }
+    }
 }
